@@ -7,6 +7,7 @@ using TMPro;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Linq;
+using UnityEditor;
 
 
 public class DialogManager : MonoBehaviour
@@ -25,7 +26,7 @@ public class DialogManager : MonoBehaviour
   // 交互按钮和文本
   public TextMeshProUGUI upper_text;
   public TextMeshProUGUI lower_text;
-  public TextMeshProUGUI sequence_text;
+  public TextMeshProUGUI sequence_text; // 显示的按钮次序，是current_text后6个元素
   public Button[] buttons;
   public List<string> button_text;
   public event System.Action on_sequence_changed; // 检测sequence变化，判断是否显示ok键
@@ -36,6 +37,7 @@ public class DialogManager : MonoBehaviour
   // 计时装置
   private float idletime = 0f;
   private float gametime = 0f;
+  private float chartime = 0f; // 用于按钮一个个字显示
   public float maxidle = 30f;
   public float maxgame = 300f;
   private bool istimeactive = false;
@@ -82,6 +84,7 @@ public class DialogManager : MonoBehaviour
     // 计时
     gametime = 0f;
     idletime = 0f;
+    chartime = 0f;
     istimeactive = true;
     clear_sequence();
   }
@@ -93,9 +96,9 @@ public class DialogManager : MonoBehaviour
     if (button_index > 0) // 正常输入
     {
       string add_string = button_text[button_index];
-      if (add_string[0] >= '\u4e00' && add_string[0] <= '\u9fff') // 中文字符，只添加第一个字
-        current_text.Add(add_string[0].ToString());
-      else current_text.Add(add_string);
+      // if (add_string[0] >= '\u4e00' && add_string[0] <= '\u9fff') // 中文字符，只添加第一个字
+      current_text.Add(add_string[0].ToString());
+      // else current_text.Add(add_string);
     }
     else // ok键，输出对话，跳转逻辑
     {
@@ -124,6 +127,7 @@ public class DialogManager : MonoBehaviour
         current_branch = judges[i];
         StartCoroutine(handle_switch());
         idletime = 0f;
+        chartime = 0f;
         return;
       }
       // 全部匹配失败,default
@@ -131,6 +135,7 @@ public class DialogManager : MonoBehaviour
       StartCoroutine(handle_default());
     }
     idletime = 0f;
+    chartime = 0f;
   }
   IEnumerator handle_default()
   {
@@ -172,26 +177,40 @@ public class DialogManager : MonoBehaviour
     }
     // 无操作时长
     idletime += Time.deltaTime;
-    if (idletime >= combo_interval && current_seq.Count > 0)
+    chartime += Time.deltaTime;
+    if (chartime >= combo_interval && current_seq.Count > 0)
     { // 最后一个按键改变字符
-      if (current_text[current_text.Count - 1][0] <= '\u9fff' &&
-          current_text[current_text.Count - 1][0] >= '\u4e00' &&
-          button_text[current_seq[current_seq.Count - 1]].Count() > current_text[current_text.Count - 1].Count())
+      if (// current_text[current_text.Count - 1][0] <= '\u9fff' &&
+          // current_text[current_text.Count - 1][0] >= '\u4e00' &&
+          button_text[current_seq[current_seq.Count - 1]].Length > current_text[current_text.Count - 1].Length)
       {
-        current_text[current_text.Count - 1] += button_text[current_seq[current_seq.Count - 1]][current_text[current_text.Count - 1].Count()];
+        current_text[current_text.Count - 1] += button_text[current_seq[current_seq.Count - 1]][current_text[current_text.Count - 1].Length];
       }
+      chartime = 0f;
     }
     if (idletime >= maxidle)
     {
       current_branch = current_branch["default"];
       StartCoroutine(handle_default());
       idletime = 0f;
+      chartime = 0f;
     }
     // 更新显示的按下按钮
     string manifest = "";
-    foreach (string item in current_text)
+    if (current_text.Count <= 6)
     {
-      manifest = manifest + item + ' ';
+      foreach (string item in current_text)
+      {
+        manifest = manifest + item + ' ';
+      }
+    }
+    else
+    { // 只显示最后6项
+      for (int i = current_text.Count - 6; i < current_text.Count; i++)
+      {
+        string item = current_text[i];
+        manifest = manifest + item + ' ';
+      }
     }
     sequence_text.text = manifest;
   }
