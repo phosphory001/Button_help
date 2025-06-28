@@ -54,9 +54,9 @@ public class DialogManagerWithIntro : MonoBehaviour
   public TextMeshProUGUI restart_text;
   public float fadeduration = 0.8f;
 
-  public string config_file_name = "demo"; // 配置文件文件名
+  public string config_file_name = "intro"; // 配置文件文件名
 
-  private bool is_intro_phase = false; // 是否处于引导阶段
+  // private bool is_intro_phase = false; // 是否处于引导阶段
 
   private bool during_intro_phase_handling = false; // 自动有多余的填充，所有按钮禁用
 
@@ -97,26 +97,26 @@ public class DialogManagerWithIntro : MonoBehaviour
 
   public bool is_button_enabled(int button_index)
   {
-    if (is_intro_phase)
-    {
-      return !during_intro_phase_handling && button_text[button_index] == "help";
-    } else {
-      return true;
-    }
+    // if (is_intro_phase)
+    // {
+      return !during_intro_phase_handling && (button_text[button_index] == "help" || button_text[button_index] == "下巴" || button_text[button_index] == "OK");
+    // } else {
+      // return true;
+    // }
   }
 
-  public void on_button_clicked_with_intro(int button_index)
-  {
-    if (!is_button_enabled(button_index)) return; // 被禁用的按钮没有反应
-    if (is_intro_phase)
-    {
-      current_text.Add("h");
-    }
-    else
-    {
-      on_button_clicked(button_index);
-    }   
-  }
+  // public void on_button_clicked_with_intro(int button_index)
+  // {
+  //   if (!is_button_enabled(button_index)) return; // 被禁用的按钮没有反应
+  //   if (is_intro_phase)
+  //   {
+  //     current_text.Add("h");
+  //   }
+  //   else
+  //   {
+  //     on_button_clicked(button_index);
+  //   }   
+  // }
 
 
   // 处理按钮
@@ -186,6 +186,11 @@ public class DialogManagerWithIntro : MonoBehaviour
     yield return StartCoroutine(show_dialog());
     if (!find_key_value_pair(config, current_branch["goto"].ToString()))
       Debug.Log($"fail to find key_value_pair of {current_branch["goto"]}");
+    if (((JObject)current_branch).Property("next") != null)
+    {
+      string next_scene = current_branch["next"].ToString();
+      SceneManager.LoadScene(next_scene);
+    }
     yield return StartCoroutine(show_dialog());
   }
 
@@ -284,12 +289,12 @@ public class DialogManagerWithIntro : MonoBehaviour
       if (pair.Key == target_key)
       {
         current_branch = pair.Value;
-        is_intro_phase = target_key == "intro_help";
+        // is_intro_phase = target_key == "intro_help";
         return true;
       }
       if (pair.Value is JObject child_obj && find_key_value_pair(child_obj, target_key))
       {
-        is_intro_phase = target_key == "intro_help";
+        // is_intro_phase = target_key == "intro_help";
         return true;
       }
     }
@@ -317,17 +322,20 @@ public class DialogManagerWithIntro : MonoBehaviour
     is_dialog_active = true;
     dialog = current_branch["dialog"] as JArray;
     // Debug.Log(dialog);
-    int dialog_len = dialog.Count;
-    for (dialog_index = 0; dialog_index < dialog_len; dialog_index++)
+    if (dialog != null)
     {
-      JToken elem = dialog[dialog_index];
-      if (((JObject)elem).Properties().First().Name == "r")
-        yield return StartCoroutine(type_text(((JObject)elem).Properties().First().Value.ToString(), upper_text));
-      else
-        yield return StartCoroutine(type_text(((JObject)elem).Properties().First().Value.ToString(), lower_text));
-      // yield return new WaitForSeconds(interval);
-      yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
-      skip_now = false;
+      int dialog_len = dialog.Count;
+      for (dialog_index = 0; dialog_index < dialog_len; dialog_index++)
+      {
+        JToken elem = dialog[dialog_index];
+        if (((JObject)elem).Properties().First().Name == "r")
+          yield return StartCoroutine(type_text(((JObject)elem).Properties().First().Value.ToString(), upper_text));
+        else
+          yield return StartCoroutine(type_text(((JObject)elem).Properties().First().Value.ToString(), lower_text));
+        // yield return new WaitForSeconds(interval);
+        yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+        skip_now = false;
+      }
     }
     is_dialog_active = false;
     foreach (var button in buttons) button.interactable = true;

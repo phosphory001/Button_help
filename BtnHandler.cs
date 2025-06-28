@@ -52,12 +52,12 @@ public class BtnHandler : MonoBehaviour
 
   private void play_button_sound()
   {
-    if (button_audio == null) return;
     // 停止当前播放
     if (button_audio_source != null && button_audio_source.isPlaying)
     {
       button_audio_source.Stop();
     }
+    if (button_audio == null) return;
     // 获取AudioSource
     AudioSource audio_source = GetComponent<AudioSource>();
     if (audio_source == null)
