@@ -14,6 +14,7 @@ public class DialogManager : MonoBehaviour
 {
   // 关卡元信息，config在start时初始化读取json
   private JObject config;
+  public string config_path; 
   private JToken current_branch; // 目前所在的分支，一般包含dialog等各种信息，分种类包含time/goto
 
   // 对话当前状态
@@ -62,7 +63,7 @@ public class DialogManager : MonoBehaviour
     gameover_text.gameObject.SetActive(false);
     restart_text.gameObject.SetActive(false);
     // 读取json
-    TextAsset json_file = Resources.Load<TextAsset>("status");
+    TextAsset json_file = Resources.Load<TextAsset>(config_path);
     config = JObject.Parse(json_file.text);
     foreach (var word in config["buttons"])
     {
@@ -153,11 +154,15 @@ public class DialogManager : MonoBehaviour
     current_text.Clear();
     Debug.Log(current_branch.ToString());
     yield return StartCoroutine(show_dialog());
-    if (!find_key_value_pair(config, current_branch["goto"].ToString()))
+    string goto_str = ((JObject)current_branch).Property("goto") != null ? current_branch["goto"].ToString() : "cnisnveunfvnernvierv";
+    Debug.Log("go to str:");
+    Debug.Log(goto_str);
+    if (!find_key_value_pair(config, goto_str))
       Debug.Log($"fail to find key_value_pair of {current_branch["goto"]}");
     if (((JObject)current_branch).Property("next") != null)
     {
       string next_scene = current_branch["next"].ToString();
+      Debug.Log("almost success");
       SceneManager.LoadScene(next_scene);
     }
     yield return StartCoroutine(show_dialog());
@@ -284,7 +289,7 @@ public class DialogManager : MonoBehaviour
   {
     foreach (var button in buttons) button.interactable = false;
     is_dialog_active = true;
-    dialog = current_branch["dialog"] as JArray;
+    dialog = ((JObject)current_branch).Property("dialog") != null ? current_branch["dialog"] as JArray : null;
     // Debug.Log(dialog);
     int dialog_len = dialog.Count;
     for (dialog_index = 0; dialog_index < dialog_len; dialog_index++)

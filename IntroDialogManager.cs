@@ -375,6 +375,7 @@ public class IntroDialogManager : MonoBehaviour
       }
     }
     is_dialog_active = false;
+    Debug.Log("unlock buttons");
     foreach (var button in buttons)
     {
       button.interactable = true;
