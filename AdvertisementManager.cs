@@ -17,7 +17,6 @@ public class AdvertisementManager : MonoBehaviour
   private JArray dialog; // 对话内容
   private bool is_dialog_active = true;
   private float typing_speed = 0.05f;
-  private float interval = 0.2f;
 
   // 广告文本
   public TextMeshProUGUI advertisement_text;
@@ -32,24 +31,48 @@ public class AdvertisementManager : MonoBehaviour
   public string next_scene = "intro";
 
   // 所有背景图
-  [SerializeField] private Sprite[] backgrounds; 
+  [SerializeField] private GIFPlayer[] backgrounds;
+  private int current_gif = 0;
 
   // 背景图组件
-  [SerializeField] private Image backgroundImage; 
+  // [SerializeField] private Image backgroundImage; 
 
   // 进入json文件中的entry，加载信息，最初对话，开始计时
   void Start()
   {
+    // gif播放
+    foreach (var gif in backgrounds) gif.gameObject.SetActive(false);
+    if (backgrounds.Length > 0) backgrounds[0].gameObject.SetActive(true);
+
     // 读取json
     TextAsset json_file = Resources.Load<TextAsset>(advertisement_config_file_name);
     dialog = JArray.Parse(json_file.text);
-    backgroundImage.sprite = backgrounds[0]; // 初始化第一张背景
+    Debug.Log(dialog.ToString());
     StartCoroutine(check_for_click());
     start_game();
   }
   void start_game()
   {
     StartCoroutine(show_dialog());
+  }
+
+  // gif切换
+  private void switch_gif()
+  {
+    backgrounds[current_gif].Stop();
+    backgrounds[current_gif].gameObject.SetActive(false);
+
+    current_gif = (current_gif + 1) % backgrounds.Length;
+
+    if (current_gif < backgrounds.Length)
+    {
+      backgrounds[current_gif].gameObject.SetActive(true);
+      backgrounds[current_gif].Play();
+    }
+    else //跳转
+    {
+      SceneManager.LoadScene(next_scene);
+    }
   }
 
   // 文字显示：打印机效果，在上/下文本框中打印出固定文字。进一步，实现对话效果和鼠标点击时马上切换下一段对话
@@ -70,12 +93,13 @@ public class AdvertisementManager : MonoBehaviour
   IEnumerator show_dialog()
   {
     is_dialog_active = true;
-    // Debug.Log(dialog);
+    Debug.Log(dialog);
     int dialog_len = dialog.Count;
     for (dialog_index = 0; dialog_index < dialog_len; dialog_index++)
     {
       JToken elem = dialog[dialog_index];
-      yield return StartCoroutine(type_text(((JObject)elem).Properties().First().Value.ToString(), advertisement_text));
+      Debug.Log(elem.ToString());
+      yield return StartCoroutine(type_text(elem.ToString(), advertisement_text));
       yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
       skip_now = false;
     }
@@ -90,7 +114,7 @@ public class AdvertisementManager : MonoBehaviour
     }
     else
     {
-      backgroundImage.sprite = backgrounds[dialog_index + 1];
+      switch_gif();
     }   
     skip_now = true;
   }

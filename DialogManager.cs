@@ -62,7 +62,7 @@ public class DialogManager : MonoBehaviour
     gameover_text.gameObject.SetActive(false);
     restart_text.gameObject.SetActive(false);
     // 读取json
-    TextAsset json_file = Resources.Load<TextAsset>("demo");
+    TextAsset json_file = Resources.Load<TextAsset>("status");
     config = JObject.Parse(json_file.text);
     foreach (var word in config["buttons"])
     {
@@ -150,11 +150,16 @@ public class DialogManager : MonoBehaviour
   IEnumerator handle_switch()
   {
     clear_sequence();
-    current_text.Clear();    
+    current_text.Clear();
     Debug.Log(current_branch.ToString());
     yield return StartCoroutine(show_dialog());
     if (!find_key_value_pair(config, current_branch["goto"].ToString()))
       Debug.Log($"fail to find key_value_pair of {current_branch["goto"]}");
+    if (((JObject)current_branch).Property("next") != null)
+    {
+      string next_scene = current_branch["next"].ToString();
+      SceneManager.LoadScene(next_scene);
+    }
     yield return StartCoroutine(show_dialog());
   }
 
@@ -164,7 +169,7 @@ public class DialogManager : MonoBehaviour
     if (!istimeactive) return;
 
     // 下部分显示：button还是dialog。为了省事，我选择直接把lower_text清空
-    if (!is_dialog_active && current_seq.Count > 0) lower_text.text = "";
+    // if (!is_dialog_active && current_seq.Count > 0) lower_text.text = "";
 
     // 游戏时长
     gametime += Time.deltaTime;
@@ -197,7 +202,7 @@ public class DialogManager : MonoBehaviour
     }
     // 更新显示的按下按钮
     string manifest = "";
-    if (current_text.Count <= 6)
+    if (current_text.Count <= 12)
     {
       foreach (string item in current_text)
       {

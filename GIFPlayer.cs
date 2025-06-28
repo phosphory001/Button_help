@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class UIGIFPlayer : MonoBehaviour
+public class GIFPlayer : MonoBehaviour
 {
     [Header("GIF Settings")]
     [SerializeField] private Sprite frame1;  // 第一帧

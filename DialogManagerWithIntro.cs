@@ -101,7 +101,7 @@ public class DialogManagerWithIntro : MonoBehaviour
     // {
       return !during_intro_phase_handling && (button_text[button_index] == "help" || button_text[button_index] == "下巴" || button_text[button_index] == "OK");
     // } else {
-      // return true;
+    //   return true;
     // }
   }
 
