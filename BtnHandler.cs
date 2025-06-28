@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class BtnHandler : MonoBehaviour
 {
-  public DialogManager manager;
+  public DialogManagerWithIntro manager;
   private Button button;
   public int button_index;
   public AudioClip button_audio;
@@ -11,7 +11,7 @@ public class BtnHandler : MonoBehaviour
 
   void Start()
   {
-    manager = FindObjectOfType<DialogManager>();
+    manager = FindObjectOfType<DialogManagerWithIntro>();
     button = GetComponent<Button>();
     button.onClick.AddListener(on_button_click);
     button.interactable = false; //初始时禁用按钮
@@ -33,9 +33,10 @@ public class BtnHandler : MonoBehaviour
 
   public void on_button_click()
   {
-    play_button_sound();
     if (manager != null)
     {
+      if (!manager.is_button_enabled(button_index)) return; // 被禁用的按钮不触发，也没有音效
+      play_button_sound();
       manager.on_button_clicked(button_index);
     }
   }
@@ -52,12 +53,12 @@ public class BtnHandler : MonoBehaviour
 
   private void play_button_sound()
   {
+    if (button_audio == null) return;
     // 停止当前播放
     if (button_audio_source != null && button_audio_source.isPlaying)
     {
       button_audio_source.Stop();
     }
-    if (button_audio == null) return;
     // 获取AudioSource
     AudioSource audio_source = GetComponent<AudioSource>();
     if (audio_source == null)
