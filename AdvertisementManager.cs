@@ -48,7 +48,7 @@ public class AdvertisementManager : MonoBehaviour
     TextAsset json_file = Resources.Load<TextAsset>(advertisement_config_file_name);
     dialog = JArray.Parse(json_file.text);
     Debug.Log(dialog.ToString());
-    StartCoroutine(check_for_click());
+    // StartCoroutine(check_for_click());
     start_game();
   }
   void start_game()
@@ -62,7 +62,7 @@ public class AdvertisementManager : MonoBehaviour
     backgrounds[current_gif].Stop();
     backgrounds[current_gif].gameObject.SetActive(false);
 
-    current_gif = (current_gif + 1) % backgrounds.Length;
+    current_gif += 1;
 
     if (current_gif < backgrounds.Length)
     {
@@ -101,6 +101,7 @@ public class AdvertisementManager : MonoBehaviour
       Debug.Log(elem.ToString());
       yield return StartCoroutine(type_text(elem.ToString(), advertisement_text));
       yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+      switch_gif();
       skip_now = false;
     }
     is_dialog_active = false;
@@ -120,6 +121,7 @@ public class AdvertisementManager : MonoBehaviour
   }
   IEnumerator check_for_click()
   {
+    yield return null;
     while (true)
     {
       if (Input.GetMouseButtonDown(0) && is_dialog_active) skip_dialog();
