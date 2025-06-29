@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using System;
 
 
 public class DialogManager : MonoBehaviour
@@ -292,7 +293,7 @@ public class DialogManager : MonoBehaviour
   {
     foreach (var button in buttons) button.interactable = false;
     is_dialog_active = true;
-    dialog = ((JObject)current_branch).Property("dialog") != null ? current_branch["dialog"] as JArray : null;
+    dialog = ((JObject)current_branch).Property("dialog") != null ? current_branch["dialog"] as JArray : new JArray();
     // Debug.Log(dialog);
     int dialog_len = dialog.Count;
     for (dialog_index = 0; dialog_index < dialog_len; dialog_index++)

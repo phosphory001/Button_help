@@ -15,17 +15,10 @@ public class BtnHandlerFinal : MonoBehaviour
     button = GetComponent<Button>();
     button.onClick.AddListener(on_button_click);
     button.interactable = false; //初始时禁用按钮
-
-    button_audio_source = GetComponent<AudioSource>();
-    if (button_audio_source == null)
-    {
-      button_audio_source = gameObject.AddComponent<AudioSource>();
-    }
-
     if (button_audio != null && GetComponent<AudioSource>() == null)
     {
       gameObject.AddComponent<AudioSource>().playOnAwake = false;
-      button_audio_source.loop = false;
+      if (button_audio_source) button_audio_source.loop = false;
     }
     if (manager != null)
       manager.on_sequence_changed += update_button_state;
