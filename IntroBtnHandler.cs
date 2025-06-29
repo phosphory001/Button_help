@@ -52,7 +52,7 @@ public class IntroBtnHandler : MonoBehaviour
   {
     if (button_index == 0)
     {
-      bool is_active = manager.current_seq != null && manager.current_seq.Count > 0;
+      bool is_active = !manager.is_intro_phase && manager.current_seq != null && manager.current_seq.Count > 0;
       button.interactable = is_active;
       button.gameObject.SetActive(is_active);
     }

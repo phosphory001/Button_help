@@ -56,7 +56,7 @@ public class IntroDialogManager : MonoBehaviour
 
   public string config_file_name = "intro"; // 配置文件文件名
 
-  private bool is_intro_phase = true; // 是否处于引导阶段
+  public bool is_intro_phase = true; // 是否处于引导阶段
 
   private int click_count = 0; // 按了几次按钮，= 1 和 = 2 的时候需要特判
 
