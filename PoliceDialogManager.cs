@@ -106,8 +106,10 @@ public class PoliceDialogManager : MonoBehaviour
       audioSource.loop = false;
       audioSource.Play();
     }
+    
+    List<string> splitted = StringSplitter.SplitStringWithTags(line);
 
-    foreach (char c in line)
+		foreach (string c in splitted)
     {
       if (target == null) yield break;
       builder.Append(c);

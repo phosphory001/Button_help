@@ -313,7 +313,9 @@ public class DialogManagerFinal : MonoBehaviour
 			finalAudioSource.Play();
     }
 
-		foreach (char c in line)
+		List<string> splitted = StringSplitter.SplitStringWithTags(line);
+
+		foreach (string c in splitted)
 		{
 			if (target == null) yield break;
 			builder.Append(c);

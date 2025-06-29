@@ -340,7 +340,10 @@ public class IntroDialogManager : MonoBehaviour
   {
     target.text = "";
     System.Text.StringBuilder builder = new System.Text.StringBuilder();
-    foreach (char c in line)
+
+    List<string> splitted = StringSplitter.SplitStringWithTags(line);
+
+		foreach (string c in splitted)
     {
       if (target == null) yield break;
       builder.Append(c);
